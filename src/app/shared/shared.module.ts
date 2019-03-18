@@ -27,6 +27,7 @@ import { SettingsLabelPipe } from './pipes/settings-label.pipe';
 import { WaterfallGraphComponent } from './waterfall-graph/waterfall-graph.component';
 import { WaterfallGraphService } from './waterfall-graph/waterfall-graph.service';
 import { ToastComponent } from './toast/toast.component';
+import { SankeyChartComponent } from './sankey-chart/sankey-chart.component';
 
 @NgModule({
   imports: [
@@ -52,7 +53,8 @@ import { ToastComponent } from './toast/toast.component';
     ExportableResultsTableComponent,
     SettingsLabelPipe,
     WaterfallGraphComponent,
-    ToastComponent
+    ToastComponent,
+    SankeyChartComponent
   ],
   exports: [
     ControlMessagesComponent,
