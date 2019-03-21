@@ -7,6 +7,7 @@ import { PsatService } from '../psat.service';
 import * as d3 from 'd3';
 import { PHAST } from '../../shared/models/phast/phast';
 import { CompareService } from '../compare.service';
+import { SankeyData, SankeyLink, SankeyNode } from '../../shared/sankey-chart/sankey-chart.service';
 var svg;
 
 // use these values to alter label font position and size
@@ -71,6 +72,8 @@ export class PsatSankeyComponent implements OnInit {
   motor: number;
   drive: number;
   pump: number;
+
+  sankeyData: SankeyData;
   constructor(private psatService: PsatService, private convertUnitsService: ConvertUnitsService, private compareService: CompareService) { }
 
   ngOnInit() {
@@ -91,6 +94,7 @@ export class PsatSankeyComponent implements OnInit {
     this.location = this.location.replace(/ /g, "");
     this.location = this.location.replace(/[\])}[{(]/g, '');
     this.location = this.location.replace(/#/g, "");
+    this.buildSankeyNodes();
   }
 
   ngAfterViewInit() {
@@ -142,36 +146,18 @@ export class PsatSankeyComponent implements OnInit {
   }
 
   sankey(results: PsatOutputs) {
-
-    // this.closeSankey();
-
-    // real version
-    // Remove  all Sankeys
-    // d3.select('#' + this.location).selectAll('svg').remove();
-
-    //debug
     d3.select(this.ngChart.nativeElement).selectAll('svg').remove();
 
     this.width = width;
     this.height = height;
 
 
-    //debug
     svg = d3.select(this.ngChart.nativeElement).append('svg')
       .attr("width", "100%")
       .attr("height", "80%")
       .attr("viewBox", "0 0 " + width + " " + height)
       .attr("preserveAspectRatio", "xMinYMin")
       .append("g");
-
-
-    //real version 
-    // svg = d3.select('#' + this.location).append('svg')
-    //   .attr("width", "100%")
-    //   .attr("height", "80%")
-    //   .attr("viewBox", "0 0 " + width + " " + height)
-    //   .attr("preserveAspectRatio", "xMinYMin")
-    //   .append("g");
 
     this.calcLosses(results);
 
@@ -823,5 +809,140 @@ export class PsatSankeyComponent implements OnInit {
     this.motor = results.motor_power * (1 - (results.motor_efficiency / 100));
     this.drive = motorShaftPower - pumpShaftPower;
     this.pump = (results.motor_power - this.motor - this.drive) * (1 - (results.pump_efficiency / 100));
+  }
+
+  //test new sankey
+  buildSankeyNodes() {
+    let nodes: Array<SankeyNode> = new Array<SankeyNode>();
+    let links: Array<SankeyLink> = new Array<SankeyLink>();
+
+    // let inputNode: SankeyNode = {
+    //   node: 0,
+    //   name: "Energy Input"
+    // };
+    // let totalInputNode: SankeyNode = {
+    //   node: 1,
+    //   name: "Total Input"
+    // };
+    // let motorLossNode: SankeyNode = {
+    //   node: 2,
+    //   name: "Motor Loss"
+    // };
+    // let driveLossNode: SankeyNode = {
+    //   node: 3,
+    //   name: "Drive Loss"
+    // };
+    // let pumpLossNode: SankeyNode = {
+    //   node: 4,
+    //   name: "Pump Loss"
+    // };
+    // let usefulOutputNode: SankeyNode = {
+    //   node: 5,
+    //   name: "Useful Output"
+    // };
+    let inputNode: SankeyNode = {
+      node: 0,
+      name: "node0"
+    };
+    let totalInputNode: SankeyNode = {
+      node: 1,
+      name: "node1"
+    };
+    let motorLossNode: SankeyNode = {
+      node: 2,
+      name: "node2"
+    };
+    let driveLossNode: SankeyNode = {
+      node: 3,
+      name: "node3"
+    };
+    let pumpLossNode: SankeyNode = {
+      node: 4,
+      name: "node4"
+    };
+    // let usefulOutputNode: SankeyNode = {
+    //   node: 5,
+    //   name: "node5"
+    // };
+    nodes.push(inputNode);
+    nodes.push(totalInputNode);
+    nodes.push(motorLossNode);
+    nodes.push(driveLossNode);
+    nodes.push(pumpLossNode);
+    // nodes.push(usefulOutputNode);
+
+    // let energyInputLink: SankeyLink = {
+    //   source: "Energy Input",
+    //   target: "Total Input",
+    //   value: 50
+    // };
+    // let totalInputToUsefulOutputLink: SankeyLink = {
+    //   source: "Total Input",
+    //   target: "Useful Output",
+    //   value: 15
+    // };
+    // let totalInputToMotorLossLink: SankeyLink = {
+    //   source: "Total Input",
+    //   target: "Motor Loss",
+    //   value: 5
+    // };
+    // let totalInputToDriveLossLink: SankeyLink = {
+    //   source: "Total Input",
+    //   target: "Drive Loss",
+    //   value: 7
+    // };
+    // let totalInputToPumpLossLink: SankeyLink = {
+    //   source: "Total Input",
+    //   target: "Pump Loss",
+    //   value: 23
+    // };
+    let energyInputLink: SankeyLink = {
+      source: 0,
+      target: 2,
+      value: 2
+    };
+    let totalInputToUsefulOutputLink: SankeyLink = {
+      source: 1,
+      target: 2,
+      value: 2
+    };
+    let totalInputToMotorLossLink: SankeyLink = {
+      source: 1,
+      target: 3,
+      value: 2
+    };
+    let totalInputToDriveLossLink: SankeyLink = {
+      source: 0,
+      target: 4,
+      value: 2
+    };
+    let totalInputToPumpLossLink: SankeyLink = {
+      source: 2,
+      target: 3,
+      value: 2
+    };
+    let testLinkA: SankeyLink = {
+      source: 2,
+      target: 4,
+      value: 2
+    };
+    let testLinkB: SankeyLink = {
+      source: 3,
+      target: 4,
+      value: 4
+    };
+    links.push(energyInputLink);
+    links.push(totalInputToUsefulOutputLink);
+    links.push(totalInputToMotorLossLink);
+    links.push(totalInputToDriveLossLink);
+    links.push(totalInputToPumpLossLink);
+    //test
+    links.push(testLinkA);
+    links.push(testLinkB);
+
+    this.sankeyData = {
+      nodes: nodes,
+      links: links
+    }
   }
 }

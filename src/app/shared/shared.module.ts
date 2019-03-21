@@ -28,6 +28,7 @@ import { WaterfallGraphComponent } from './waterfall-graph/waterfall-graph.compo
 import { WaterfallGraphService } from './waterfall-graph/waterfall-graph.service';
 import { ToastComponent } from './toast/toast.component';
 import { SankeyChartComponent } from './sankey-chart/sankey-chart.component';
+import { SankeyChartService } from './sankey-chart/sankey-chart.service';
 
 @NgModule({
   imports: [
@@ -71,7 +72,8 @@ import { SankeyChartComponent } from './sankey-chart/sankey-chart.component';
     PrintOptionsMenuComponent,
     SettingsLabelPipe,
     WaterfallGraphComponent,
-    ToastComponent
+    ToastComponent,
+    SankeyChartComponent
   ],
   providers: [
     ValidationService,
@@ -80,7 +82,8 @@ import { SankeyChartComponent } from './sankey-chart/sankey-chart.component';
     UpdateDataService,
     SvgToPngService,
     LineChartHelperService,
-    WaterfallGraphService
+    WaterfallGraphService,
+    SankeyChartService
   ]
 })
 
