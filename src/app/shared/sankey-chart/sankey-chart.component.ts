@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { SankeyChartService, SankeyNode, SankeyLink, SankeyData } from './sankey-chart.service';
 import * as d3 from 'd3';
-const width = 700,
-  height = 300;
+const width = 1500,
+  height = 650;
 
 @Component({
   selector: 'app-sankey-chart',
@@ -62,15 +62,14 @@ export class SankeyChartComponent implements OnInit {
   drawSankey() {
     this.svg = this.sankeyChartService.clearSvg(this.ngChart);
     this.svg = this.sankeyChartService.initSvg(this.ngChart, this.width - this.margin.left - this.margin.right, this.height - this.margin.top - this.margin.bottom, this.margin);
-    console.log('this.width = ' + this.width);
-    console.log('this.height = ' + this.height);
-    console.log('this.nodeWidth = ' + this.nodeWidth);
-    console.log('this.nodePadding = ' + this.nodePadding);
-    this.sankey = this.sankeyChartService.initSankeyProperties(this.width, this.height, 0, 0);
-    console.log('sankey = ');
-    console.log(this.sankey);
+    this.sankey = this.sankeyChartService.initSankeyProperties(this.width - this.margin.left - this.margin.right, this.height - this.margin.top - this.margin.bottom, 0, 0);
     // this.path = this.sankeyChartService.getPath(this.sankey);
-    this.path = this.sankey.link();
+    // this.path = this.sankey.link();
+    // let dataArray = this.sankey.dataArray();
+    let line = d3.line()
+      .x(function (d) { return (d.x) })
+      .y(function (d) { return (d.y) })
+      .curve(d3.curveBundle);
     console.log('post path = ');
     console.log(this.path);
     let sankeyData: SankeyData = {
@@ -93,9 +92,8 @@ export class SankeyChartComponent implements OnInit {
     console.log('sankey post node/links/layout = ');
     console.log(this.sankey);
 
-    let link = this.sankeyChartService.getLink(this.svg, sankeyData, this.path, this.format);
-    let node = this.sankeyChartService.getNode(this.svg, sankeyData, 36, this.width, this.color, this.format);
-
-  }
+    let link = this.sankeyChartService.getLink(this.svg, sankeyData, this.format, line);
+    let node = this.sankeyChartService.getNode(this.svg, this.sankey, link, line, sankeyData, 36, this.width - this.margin.left - this.margin.right, this.height - this.margin.top - this.margin.bottom, this.color, this.format);
+    }
 
 }

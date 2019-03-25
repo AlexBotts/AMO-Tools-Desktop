@@ -10,11 +10,11 @@
 }
 
 .link {
-    fill: none;
-    stroke: #000;
-    stroke-opacity: .2;
+    /* fill: none; */
+    /* stroke: #000; */
+    /* opacity: .2; */
 }
 
 .link:hover {
-    stroke-opacity: .5;
+    opacity: .5;
 }

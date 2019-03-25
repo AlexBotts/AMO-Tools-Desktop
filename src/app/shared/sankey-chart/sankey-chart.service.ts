@@ -1,7 +1,7 @@
 import { Injectable, ElementRef } from '@angular/core';
 import * as d3 from 'd3';
 import { analyzeAndValidateNgModules } from '@angular/compiler';
-import { containerEnd } from '@angular/core/src/render3/instructions';
+import { containerEnd, lifecycle } from '@angular/core/src/render3/instructions';
 
 @Injectable()
 export class SankeyChartService {
@@ -106,41 +106,65 @@ export class SankeyChartService {
         return sankey;
       };
 
-      sankey.link = function () {
-        var curvature = .5;
+      // sankey.
 
-        function link(d) {
-          var x0 = d.source.x + d.source.dx,
-            x1 = d.target.x,
-            xi = d3.interpolateNumber(x0, x1),
-            x2 = xi(curvature),
-            x3 = xi(1 - curvature),
-            y0 = d.source.y + d.sy + d.dy / 2,
-            y1 = d.target.y + d.ty + d.dy / 2;
 
-          // console.log('');
-          // console.log('y0 = ' + y0);
-          // console.log('y1 = ' + y1);
-          // console.log('d.ty = ' + d.ty);
-          // console.log('');
-          // var pathString = "M" + x0 + "," + y0 + "C" + x2 + "," + d.source.y + " " + x3 + "," + d.target.y + " " + x1 + "," + y1;
-          // console.log(pathString);
-          // return pathString;
-          return "M " + x0 + "," + y0
-            + " C " + x2 + "," + y0
-            + " " + x3 + "," + y1
-            + " " + x1 + "," + y1;
-        }
+      // sankey.dataArray = function () {
+      //   var curvature = .5;
 
-        link.curvature = function (_) {
-          if (!arguments.length) {
-            return curvature;
-          }
-          curvature = +_;
-          return link;
-        };
-        return link;
-      };
+      //   function dataArray(d) {
+      //     var x0 = d.source.x + d.source.dx,
+      //       x3 = d.target.x,
+      //       xi = d3.interpolateNumber(x0, x2),
+      //       x1 = xi(curvature),
+      //       x2 = xi(1 - curvature),
+      //       y0 = d.source.y + d.sy + d.dy / 2,
+      //       y3 = d.target.y + d.ty + d.dy / 2,
+      //       y1 = y0 + ((y3 - y0) / 2),
+      //       y2 = y0 - ((y3 - y0) / 2);
+      //     var tmpArray = [{ x: x0, y: y0 }, { x: x1, y: y1 }, { x: x2, y: y2 }, { x: x3, y: y3 }];
+      //     console.log('tmpArray = ');
+      //     console.log(tmpArray);
+
+      //     return d3.curveBundle([{ x: x0, y: y0 }, { x: x1, y: y1 }, { x: x2, y: y2 }, { x: x3, y: y3 }]);
+      //   }
+      //   dataArray.curvature = function (_) {
+      //     if (!arguments.length) {
+      //       return curvature;
+      //     }
+      //     curvature = +_;
+      //     return dataArray;
+      //   };
+      //   return dataArray;
+      // };
+
+
+      // sankey.link = function () {
+      //   var curvature = .5;
+
+      //   function link(d) {
+      //     var x0 = d.source.x + d.source.dx,
+      //       x1 = d.target.x,
+      //       xi = d3.interpolateNumber(x0, x1),
+      //       x2 = xi(curvature),
+      //       x3 = xi(1 - curvature),
+      //       y0 = d.source.y + d.sy + d.dy / 2,
+      //       y1 = d.target.y + d.ty + d.dy / 2;
+      //     return "M " + x0 + "," + y0
+      //       + " C " + x2 + "," + y0
+      //       + " " + x3 + "," + y1
+      //       + " " + x1 + "," + y1;
+      //   }
+
+      //   link.curvature = function (_) {
+      //     if (!arguments.length) {
+      //       return curvature;
+      //     }
+      //     curvature = +_;
+      //     return link;
+      //   };
+      //   return link;
+      // };
 
       function computeNodeLinks() {
         nodes.forEach(function (node) {
@@ -277,6 +301,7 @@ export class SankeyChartService {
         }
 
         function resolveCollisions() {
+          console.log('resolving collisions');
           nodesByBreadth.forEach(function (nodes) {
             var node,
               dy,
@@ -368,8 +393,8 @@ export class SankeyChartService {
 
   initSvg(ngChart: ElementRef, width: number, height: number, margin: { top: number, right: number, bottom: number, left: number }): d3.Selection<any> {
     return d3.select(ngChart.nativeElement).append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
+      .attr('width', width)
+      .attr('height', height)
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
   }
@@ -383,18 +408,44 @@ export class SankeyChartService {
   //   return sankey;
   // }
 
-  getPath(sankey: d3.Selection<any>): any {
-    return sankey.link();
-  }
+  // getPath(sankey: d3.Selection<any>): any {
+  //   return sankey.link();
+  // }
 
-  getLink(svg: d3.Selection<any>, sankeyData: SankeyData, path: d3.Selection<any>, format: any): d3.Selection<any> {
+  // getLink(svg: d3.Selection<any>, sankeyData: SankeyData, path: d3.Selection<any>, format: any, line: any): d3.Selection<any> {
+  getLink(svg: d3.Selection<any>, sankeyData: SankeyData, format: any, line: any): d3.Selection<any> {
     let link = svg.append('g').selectAll('.link')
       .data(sankeyData.links)
       .enter().append('path')
+      // .attr('d', path)
+
+      .attr('d', function (d) {
+        var curvature = .5;
+        var x0 = d.source.x + d.source.dx,
+          x3 = d.target.x,
+          xi = d3.interpolateNumber(x0, x3),
+          x1 = xi(curvature),
+          x2 = xi(1 - curvature),
+          y0 = d.source.y + d.sy + d.dy / 2,
+          y3 = d.target.y + d.ty + d.dy / 2,
+          // y1 = y0 - ((y3 - y0) / 2),
+          y1 = y0,
+          y2 = y3;
+        // y2 = y0 + ((y3 - y0) / 2);
+        console.log('0 = (' + x0 + ', ' + y0 + ')');
+        console.log('1 = (' + x1 + ', ' + y1 + ')');
+        console.log('2 = (' + x2 + ', ' + y2 + ')');
+        console.log('3 = (' + x3 + ', ' + y3 + ')');
+        var tmpArray = [{ x: Math.abs(x0), y: Math.abs(y0) }, { x: Math.abs(x1), y: Math.abs(y1) }, { x: Math.abs(x2), y: Math.abs(y2) }, { x: Math.abs(x3), y: Math.abs(y3) }];
+        return line(tmpArray);
+      })
       .attr('class', 'link')
-      .attr('d', path)
+      .style('stroke', 'blue')
+      .style('opacity', 0.2)
       .style('stroke-width', function (d) { return Math.max(1, d.dy); })
       .sort(function (a, b) { return b.dy - a.dy; });
+    console.log('link = ');
+    console.log(link);
     link.append('title')
       .text(function (d) {
         return d.source.name + ' → ' +
@@ -403,14 +454,55 @@ export class SankeyChartService {
     return link;
   }
 
-  getNode(svg: d3.Selection<any>, sankeyData: SankeyData, nodeWidth: number, width: number, color: any, format: any): d3.Selection<any> {
+  getNode(svg: d3.Selection<any>, sankey: d3.Selection<any>, link: d3.Selection<any>, line: any, sankeyData: SankeyData, nodeWidth: number, width: number, height: number, color: any, format: any): d3.Selection<any> {
+    let dragmove = function (d) {
+      d3.select(this)
+        .attr('transform',
+          'translate('
+          + d.x + ','
+          + (d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))
+          ) + ')');
+      sankey.relayout();
+      link.attr('d', function (d) {
+        var curvature = .5;
+        var x0 = d.source.x + d.source.dx,
+          x3 = d.target.x,
+          xi = d3.interpolateNumber(x0, x3),
+          x1 = xi(curvature),
+          x2 = xi(1 - curvature),
+          y0 = d.source.y + d.sy + d.dy / 2,
+          y3 = d.target.y + d.ty + d.dy / 2,
+          // y1 = y0 - ((y3 - y0) / 2),
+          y1 = y0,
+          y2 = y3;
+        // y2 = y0 + ((y3 - y0) / 2);
+        console.log('0 = (' + x0 + ', ' + y0 + ')');
+        console.log('1 = (' + x1 + ', ' + y1 + ')');
+        console.log('2 = (' + x2 + ', ' + y2 + ')');
+        console.log('3 = (' + x3 + ', ' + y3 + ')');
+        var tmpArray = [{ x: Math.abs(x0), y: Math.abs(y0) }, { x: Math.abs(x1), y: Math.abs(y1) }, { x: Math.abs(x2), y: Math.abs(y2) }, { x: Math.abs(x3), y: Math.abs(y3) }];
+        return line(tmpArray);
+      });
+    };
+
     let node = svg.append('g').selectAll('.node')
       .data(sankeyData.nodes)
       .enter().append('g')
       .attr('class', 'node')
       .attr('transform', function (d) {
+        console.log('d.y = ');
+        console.log(d.y);
         return 'translate(' + d.x + ',' + d.y + ')';
-      });
+      })
+      .call(d3.drag()
+        .subject(function (d) {
+          return;
+        })
+        .on('start', function () {
+          this.parentNode.appendChild(this);
+        })
+        .on('drag', dragmove)
+      );
 
     node.append('rect')
       .attr('height', function (d) { return d.dy; })
@@ -435,6 +527,8 @@ export class SankeyChartService {
       .filter(function (d) { return d.x < width / 2; })
       .attr('x', 6 + nodeWidth)
       .attr('text-anchor', 'start');
+
+    // sankey.relayout();
 
     return node;
   }
