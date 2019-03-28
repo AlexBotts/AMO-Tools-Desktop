@@ -2,6 +2,7 @@ import { Injectable, ElementRef } from '@angular/core';
 import * as d3 from 'd3';
 import { analyzeAndValidateNgModules } from '@angular/compiler';
 import { containerEnd, lifecycle } from '@angular/core/src/render3/instructions';
+import { constants } from 'os';
 
 @Injectable()
 export class SankeyChartService {
@@ -38,6 +39,7 @@ export class SankeyChartService {
   }
 
   initSankeyProperties(width: number, height: number, nodeW: number, nodeP: number): d3.Selection<any> {
+
     d3.sankey = function () {
       var sankey: any = {};
       // var sankey = {
@@ -51,6 +53,12 @@ export class SankeyChartService {
       var size = [1, 1];
       var nodes = [];
       var links = [];
+      var cycleLaneNarrowWidth = 4;
+      var cycleLaneDistFromFwdPaths = -10;
+      var cycleDistFromNode = 30;
+      var cycleControlPointDist = 30;
+      var cycleSmallWidthBuffer = 2;
+      var cycleLinksCount = 0;
 
       sankey.nodeWidth = function (_) {
         if (!arguments.length) {
@@ -67,6 +75,54 @@ export class SankeyChartService {
         nodePadding = +_;
         return sankey;
       };
+
+      sankey.cycleLaneNarrowWidth = function (_) {
+        if (!arguments.length) {
+          return cycleLaneNarrowWidth;
+        }
+        cycleLaneNarrowWidth = +_;
+        return sankey;
+      }
+
+      sankey.cycleSmallWidthBuffer = function (_) {
+        if (!arguments.length) {
+          return cycleSmallWidthBuffer;
+        }
+        cycleSmallWidthBuffer = +_;
+        return sankey;
+      }
+
+      sankey.cycleLaneDistFromFwdPaths = function (_) {
+        if (!arguments.length) {
+          return cycleLaneDistFromFwdPaths;
+        }
+        cycleLaneDistFromFwdPaths = +_;
+        return sankey;
+      }
+
+      sankey.cycleDistFromNode = function (_) {
+        if (!arguments.length) {
+          return cycleDistFromNode;
+        }
+        cycleDistFromNode = +_;
+        return sankey;
+      }
+
+      sankey.cycleControlPointDist = function (_) {
+        if (!arguments.length) {
+          return cycleControlPointDist;
+        }
+        cycleControlPointDist = +_;
+        return sankey;
+      }
+
+      sankey.cycleLinksCount = function (_) {
+        if (!arguments.length) {
+          return cycleLinksCount;
+        }
+        cycleLinksCount = +_;
+        return sankey;
+      }
 
       sankey.nodes = function (_) {
         if (!arguments.length) {
@@ -93,11 +149,19 @@ export class SankeyChartService {
       };
 
       sankey.layout = function (iterations) {
+        console.log('layout; 0%');
         computeNodeLinks();
+        console.log('16.67%');
         computeNodeValues();
+        console.log('33.33%');
+        markCycles();
+        console.log('50%');
         computeNodeBreadths();
+        console.log('66.67%');
         computeNodeDepths(iterations);
+        console.log('83.33%');
         computeLinkDepths();
+        console.log('sankey complete; 100%');
         return sankey;
       };
 
@@ -106,66 +170,49 @@ export class SankeyChartService {
         return sankey;
       };
 
-      // sankey.
-
-
-      // sankey.dataArray = function () {
-      //   var curvature = .5;
-
-      //   function dataArray(d) {
-      //     var x0 = d.source.x + d.source.dx,
-      //       x3 = d.target.x,
-      //       xi = d3.interpolateNumber(x0, x2),
-      //       x1 = xi(curvature),
-      //       x2 = xi(1 - curvature),
-      //       y0 = d.source.y + d.sy + d.dy / 2,
-      //       y3 = d.target.y + d.ty + d.dy / 2,
-      //       y1 = y0 + ((y3 - y0) / 2),
-      //       y2 = y0 - ((y3 - y0) / 2);
-      //     var tmpArray = [{ x: x0, y: y0 }, { x: x1, y: y1 }, { x: x2, y: y2 }, { x: x3, y: y3 }];
-      //     console.log('tmpArray = ');
-      //     console.log(tmpArray);
-
-      //     return d3.curveBundle([{ x: x0, y: y0 }, { x: x1, y: y1 }, { x: x2, y: y2 }, { x: x3, y: y3 }]);
-      //   }
-      //   dataArray.curvature = function (_) {
-      //     if (!arguments.length) {
-      //       return curvature;
-      //     }
-      //     curvature = +_;
-      //     return dataArray;
-      //   };
-      //   return dataArray;
-      // };
-
-
       // sankey.link = function () {
+      //   console.log('sankey.link');
       //   var curvature = .5;
 
       //   function link(d) {
-      //     var x0 = d.source.x + d.source.dx,
-      //       x1 = d.target.x,
-      //       xi = d3.interpolateNumber(x0, x1),
-      //       x2 = xi(curvature),
-      //       x3 = xi(1 - curvature),
-      //       y0 = d.source.y + d.sy + d.dy / 2,
-      //       y1 = d.target.y + d.ty + d.dy / 2;
-      //     return "M " + x0 + "," + y0
-      //       + " C " + x2 + "," + y0
-      //       + " " + x3 + "," + y1
-      //       + " " + x1 + "," + y1;
+      //     console.log('called link(d), d = ');
+      //     console.log(d);
+      //     var xSource = d.source.x + d.source.dx,
+      //       xTarget = d.target.x,
+      //       xInterpolator = d3.interpolateNumber(xSource, xTarget),
+      //       xSourceCurve = xInterpolator(curvature),
+      //       xTargetCurve = xInterpolator(1 - curvature),
+      //       ySource = d.source.y + d.sy + d.dy / 2,
+      //       yTarget = d.target.y + d.ty + d.dy / 2;
+
+      //     if (!d.cycleBreaker) {
+      //       return 'M' + xSource + ',' + ySource
+      //         + 'C' + xSourceCurve + ',' + ySource
+      //         + ' ' + xTargetCurve + ',' + yTarget
+      //         + ' ' + xTarget + ',' + yTarget;
+      //     }
+      //     else {
+      //       xSourceCurve = xInterpolator(-0.5 * curvature);
+      //       xTargetCurve = xInterpolator(1 + 0.5 * curvature);
+      //       var xMiddle = xInterpolator(0.5);
+      //       var yMiddle = d3.interpolateNumber(ySource, yTarget)(-.5);
+      //       return 'M' + xSource + ',' + ySource
+      //         + 'C' + xSourceCurve + ',' + ySource
+      //         + ' ' + xSourceCurve + ',' + yMiddle
+      //         + ' ' + xMiddle + ',' + yMiddle
+      //         + 'S' + xTargetCurve + ',' + yTarget
+      //         + ' ' + xTarget + ',' + yTarget;
+      //     }
       //   }
 
       //   link.curvature = function (_) {
-      //     if (!arguments.length) {
-      //       return curvature;
-      //     }
+      //     if (!arguments.length) return curvature;
       //     curvature = +_;
       //     return link;
       //   };
-      //   return link;
-      // };
+      // }
 
+      // this will puplate sourceLinks and targetLinks for each node
       function computeNodeLinks() {
         nodes.forEach(function (node) {
           node.sourceLinks = [];
@@ -174,10 +221,10 @@ export class SankeyChartService {
         links.forEach(function (link) {
           var source = link.source,
             target = link.target;
-          if (typeof source === "number") {
+          if (typeof source === 'number') {
             source = link.source = nodes[link.source];
           }
-          if (typeof target === "number") {
+          if (typeof target === 'number') {
             target = link.target = nodes[link.target];
           }
           source.sourceLinks.push(link);
@@ -205,7 +252,7 @@ export class SankeyChartService {
             node.x = x;
             node.dx = nodeWidth;
             node.sourceLinks.forEach(function (link) {
-              if (nextNodes.indexOf(link.target) < 0) {
+              if (!link.causesCycle) {
                 nextNodes.push(link.target);
               }
             });
@@ -295,20 +342,20 @@ export class SankeyChartService {
               }
             });
           });
+
           function weightedTarget(link) {
             return center(link.target) * link.value;
           }
         }
 
         function resolveCollisions() {
-          console.log('resolving collisions');
           nodesByBreadth.forEach(function (nodes) {
             var node,
               dy,
               y0 = 0,
               n = nodes.length,
               i;
-
+            // push overlapping nodes down
             nodes.sort(ascendingDepth);
             for (i = 0; i < n; ++i) {
               node = nodes[i];
@@ -319,6 +366,7 @@ export class SankeyChartService {
               y0 = node.y + node.dy + nodePadding;
             }
 
+            // if bottommost node goes outside the bans, push it back up
             dy = y0 - nodePadding - size[1];
             if (dy > 0) {
               y0 = node.y -= dy;
@@ -374,12 +422,68 @@ export class SankeyChartService {
         return link.value;
       }
 
+      function markCycles() {
+        // find the 'feedback arc set' and remove them;
+        // this way is expensive, but should be fine for small number of links
+        var cycleMakers = [];
+        var addedLinks = new Array();
+        links.forEach(function (link) {
+          if (createsCycle(link.source, link.target, addedLinks)) {
+            link.causesCycle = true;
+            link.cycleIndex = cycleMakers.length;
+            cycleMakers.push(link);
+            cycleLinksCount = cycleMakers.length;
+          }
+          else {
+            addedLinks.push(link);
+          }
+        });
+      }
+
+      function createsCycle(originalSource, nodeToCheck, graph) {
+        if (graph.length == 0) {
+          return false;
+        }
+        var nextLinks = findLinksOutward(nodeToCheck, graph);
+        // leaf node check
+        if (nextLinks.length == 0) {
+          return false;
+        }
+        // cycle check
+        for (var i = 0; i < nextLinks.length; i++) {
+          var nextLink = nextLinks[i];
+
+          if (nextLink.target === originalSource) {
+            return true;
+          }
+          // recurse
+          if (createsCycle(originalSource, nextLink.target, graph)) {
+            return true;
+          }
+        }
+        // exhausted all links
+        return false;
+      }
+
+      function findLinksOutward(node, graph) {
+        var children = [];
+        for (var i = 0; i < graph.length; i++) {
+          if (node == graph[i].source) {
+            children.push(graph[i]);
+          }
+        }
+        return children;
+      }
       return sankey;
     };
+
     let tmpSankey = d3.sankey()
       .nodeWidth(36)
       .nodePadding(40)
       .size([width, height]);
+    // let tmpPath = d3.sankey().link();
+    console.log('tmpSankey = ');
+    console.log(tmpSankey);
     // console.log('sankey = ');
     // console.log(sankey);
     return tmpSankey;
@@ -393,10 +497,25 @@ export class SankeyChartService {
 
   initSvg(ngChart: ElementRef, width: number, height: number, margin: { top: number, right: number, bottom: number, left: number }): d3.Selection<any> {
     return d3.select(ngChart.nativeElement).append('svg')
+      .attr('preserveAspectRatio', 'xMinYMid meet')
       .attr('width', width)
       .attr('height', height)
+      // .style('margin', margin.top + 'px ' + margin.right + 'px ' + margin.bottom + 'px ' + margin.left + 'px')
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+  }
+
+  addViewBox(svg: d3.Selection<any>, sankey: d3.Selection<any>, width: number, height: number) {
+
+    let cycleTopMarginSize = (sankey.cycleLaneDistFromFwdPaths() - ((sankey.cycleLaneNarrowWidth() + sankey.cycleSmallWidthBuffer()) * sankey.cycleLinksCount()))
+    let horizontalMarginSize = (sankey.cycleDistFromNode() + sankey.cycleControlPointDist());
+    console.log('cycleTopMarginSize = ' + cycleTopMarginSize);
+    console.log('horizontalMarginSize = ' + horizontalMarginSize);
+    svg.attr('viewBox',
+      '' + (0 - horizontalMarginSize) + ' '
+      + cycleTopMarginSize + ' '
+      + (width + horizontalMarginSize * 2) + ' '
+      + (height + (-1 * cycleTopMarginSize)) + ' ');
   }
 
   // initSankeyProperties(width: number, height: number, nodeWidth: number, nodePadding: number): d3.Selection<any> {
@@ -412,40 +531,110 @@ export class SankeyChartService {
   //   return sankey.link();
   // }
 
-  // getLink(svg: d3.Selection<any>, sankeyData: SankeyData, path: d3.Selection<any>, format: any, line: any): d3.Selection<any> {
-  getLink(svg: d3.Selection<any>, sankeyData: SankeyData, format: any, line: any): d3.Selection<any> {
+  // getLink(svg: d3.Selection<any>, sankeyData: SankeyData, format: any, line: any, path: any): d3.Selection<any> {
+  getLink(svg: d3.Selection<any>, sankeyData: SankeyData, format: any, path: any): d3.Selection<any> {
+
+    console.log('getLink, path = ');
+    console.log(path);
+    // cycle features
+    // cycleLaneNarrowWidth = 4,
+    // cycleLaneDistFromFwdPaths = -10,  // the distance above the paths to start showing 'cycle lanes'
+    // cycleDistFromNode = 30,      // linear path distance before arcing from node
+    //   cycleControlPointDist = 30,  // controls the significance of the cycle's arc
+    // cycleSmallWidthBuffer = 2
+
     let link = svg.append('g').selectAll('.link')
       .data(sankeyData.links)
       .enter().append('path')
-      // .attr('d', path)
-
       .attr('d', function (d) {
+        console.log('d = ');
+        console.log(d);
         var curvature = .5;
-        var x0 = d.source.x + d.source.dx,
-          x3 = d.target.x,
-          xi = d3.interpolateNumber(x0, x3),
-          x1 = xi(curvature),
-          x2 = xi(1 - curvature),
-          y0 = d.source.y + d.sy + d.dy / 2,
-          y3 = d.target.y + d.ty + d.dy / 2,
-          // y1 = y0 - ((y3 - y0) / 2),
-          y1 = y0,
-          y2 = y3;
-        // y2 = y0 + ((y3 - y0) / 2);
-        console.log('0 = (' + x0 + ', ' + y0 + ')');
-        console.log('1 = (' + x1 + ', ' + y1 + ')');
-        console.log('2 = (' + x2 + ', ' + y2 + ')');
-        console.log('3 = (' + x3 + ', ' + y3 + ')');
-        var tmpArray = [{ x: Math.abs(x0), y: Math.abs(y0) }, { x: Math.abs(x1), y: Math.abs(y1) }, { x: Math.abs(x2), y: Math.abs(y2) }, { x: Math.abs(x3), y: Math.abs(y3) }];
-        return line(tmpArray);
+        var cycleLaneNarrowWidth = 4;
+        var cycleLaneDistFromFwdPaths = -10;
+        var cycleDistFromNode = 30;
+        var cycleControlPointDist = 30;
+        var cycleSmallWidthBuffer = 2;
+        if (d.causesCycle) {
+          //cycle node, reaches backwards
+
+          let smallWidth = cycleLaneNarrowWidth,
+            s_x = d.source.x + d.source.dx,
+            s_y = d.source.y + d.sy + d.dy,
+            t_x = d.target.x,
+            t_y = d.target.y,
+            se_x = s_x + cycleDistFromNode,
+            se_y = s_y,
+            ne_x = se_x,
+            ne_y = cycleLaneDistFromFwdPaths - (d.cycleIndex * (smallWidth + cycleSmallWidthBuffer)),
+            nw_x = t_x - cycleDistFromNode,
+            nw_y = ne_y,
+            sw_x = nw_x,
+            sw_y = t_y + d.ty + d.dy;
+
+          // start the path on the outer path boundary
+          return "M" + s_x + "," + s_y
+            + "L" + se_x + "," + se_y
+            + "C" + (se_x + cycleControlPointDist) + "," + se_y + " " + (ne_x + cycleControlPointDist) + "," + ne_y + " " + ne_x + "," + ne_y
+            + "H" + nw_x
+            + "C" + (nw_x - cycleControlPointDist) + "," + nw_y + " " + (sw_x - cycleControlPointDist) + "," + sw_y + " " + sw_x + "," + sw_y
+            + "H" + t_x
+            //moving to inner path boundary
+            + "V" + (t_y + d.ty)
+            + "H" + sw_x
+            + "C" + (sw_x - (cycleControlPointDist / 2) + smallWidth) + "," + t_y + " " +
+            (nw_x - (cycleControlPointDist / 2) + smallWidth) + "," + (nw_y + smallWidth) + " " +
+            nw_x + "," + (nw_y + smallWidth)
+            + "H" + (ne_x - smallWidth)
+            + "C" + (ne_x + (cycleControlPointDist / 2) - smallWidth) + "," + (ne_y + smallWidth) + " " +
+            (se_x + (cycleControlPointDist / 2) - smallWidth) + "," + (se_y - d.dy) + " " +
+            se_x + "," + (se_y - d.dy)
+            + "L" + s_x + "," + (s_y - d.dy);
+
+
+        }
+        else {
+          // regular forward node
+          var x0 = d.source.x + d.source.dx,
+            x1 = d.target.x,
+            xi = d3.interpolateNumber(x0, x1),
+            x2 = xi(curvature),
+            x3 = xi(1 - curvature),
+            y0 = d.source.y + d.sy + d.dy / 2,
+            y1 = d.target.y + d.ty + d.dy / 2;
+          return "M" + x0 + "," + y0
+            + "C" + x2 + "," + y0
+            + " " + x3 + "," + y1
+            + " " + x1 + "," + y1;
+        }
       })
       .attr('class', 'link')
       .style('stroke', 'blue')
+      .style('fill', function (d) {
+        if (d.causesCycle) {
+          return 'red';
+        }
+        else {
+          return '';
+        }
+      })
       .style('opacity', 0.2)
-      .style('stroke-width', function (d) { return Math.max(1, d.dy); })
+      // .style('stroke-width', function (d) { return Math.max(1, d.dy); })
+      .on('mouseover', function (d) {
+        d3.select(this)
+          .transition()
+          .duration(200)
+          .style('opacity', 0.5);
+      })
+      .on('mouseout', function (d) {
+        d3.select(this)
+          .transition()
+          .duration(200)
+          .style('opacity', 0.2);
+      })
       .sort(function (a, b) { return b.dy - a.dy; });
-    console.log('link = ');
-    console.log(link);
+    link.filter(function (d) { return !d.causesCycle })
+      .style('stroke-width', function (d) { return Math.max(1, d.dy); })
     link.append('title')
       .text(function (d) {
         return d.source.name + ' → ' +
@@ -454,55 +643,15 @@ export class SankeyChartService {
     return link;
   }
 
-  getNode(svg: d3.Selection<any>, sankey: d3.Selection<any>, link: d3.Selection<any>, line: any, sankeyData: SankeyData, nodeWidth: number, width: number, height: number, color: any, format: any): d3.Selection<any> {
-    let dragmove = function (d) {
-      d3.select(this)
-        .attr('transform',
-          'translate('
-          + d.x + ','
-          + (d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))
-          ) + ')');
-      sankey.relayout();
-      link.attr('d', function (d) {
-        var curvature = .5;
-        var x0 = d.source.x + d.source.dx,
-          x3 = d.target.x,
-          xi = d3.interpolateNumber(x0, x3),
-          x1 = xi(curvature),
-          x2 = xi(1 - curvature),
-          y0 = d.source.y + d.sy + d.dy / 2,
-          y3 = d.target.y + d.ty + d.dy / 2,
-          // y1 = y0 - ((y3 - y0) / 2),
-          y1 = y0,
-          y2 = y3;
-        // y2 = y0 + ((y3 - y0) / 2);
-        console.log('0 = (' + x0 + ', ' + y0 + ')');
-        console.log('1 = (' + x1 + ', ' + y1 + ')');
-        console.log('2 = (' + x2 + ', ' + y2 + ')');
-        console.log('3 = (' + x3 + ', ' + y3 + ')');
-        var tmpArray = [{ x: Math.abs(x0), y: Math.abs(y0) }, { x: Math.abs(x1), y: Math.abs(y1) }, { x: Math.abs(x2), y: Math.abs(y2) }, { x: Math.abs(x3), y: Math.abs(y3) }];
-        return line(tmpArray);
-      });
-    };
+  getNode(svg: d3.Selection<any>, sankeyData: SankeyData, nodeWidth: number, width: number, height: number, color: any, format: any): d3.Selection<any> {
 
     let node = svg.append('g').selectAll('.node')
       .data(sankeyData.nodes)
       .enter().append('g')
       .attr('class', 'node')
       .attr('transform', function (d) {
-        console.log('d.y = ');
-        console.log(d.y);
         return 'translate(' + d.x + ',' + d.y + ')';
-      })
-      .call(d3.drag()
-        .subject(function (d) {
-          return;
-        })
-        .on('start', function () {
-          this.parentNode.appendChild(this);
-        })
-        .on('drag', dragmove)
-      );
+      });
 
     node.append('rect')
       .attr('height', function (d) { return d.dy; })
@@ -527,9 +676,6 @@ export class SankeyChartService {
       .filter(function (d) { return d.x < width / 2; })
       .attr('x', 6 + nodeWidth)
       .attr('text-anchor', 'start');
-
-    // sankey.relayout();
-
     return node;
   }
 }
@@ -543,6 +689,7 @@ export interface SankeyLink {
   source: any,
   target: any,
   value: number
+  // causesCycle: boolean
 };
 
 export interface SankeyData {

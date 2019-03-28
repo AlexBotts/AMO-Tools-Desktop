@@ -10,9 +10,9 @@
 }
 
 .link {
-    /* fill: none; */
-    /* stroke: #000; */
-    /* opacity: .2; */
+    fill: none;
+    stroke: blue;
+    opacity: .2;
 }
 
 .link:hover {

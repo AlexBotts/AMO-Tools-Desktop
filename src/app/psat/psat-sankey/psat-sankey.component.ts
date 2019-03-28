@@ -816,129 +816,128 @@ export class PsatSankeyComponent implements OnInit {
     let nodes: Array<SankeyNode> = new Array<SankeyNode>();
     let links: Array<SankeyLink> = new Array<SankeyLink>();
 
-    // let inputNode: SankeyNode = {
-    //   node: 0,
-    //   name: "Energy Input"
-    // };
-    // let totalInputNode: SankeyNode = {
-    //   node: 1,
-    //   name: "Total Input"
-    // };
-    // let motorLossNode: SankeyNode = {
-    //   node: 2,
-    //   name: "Motor Loss"
-    // };
-    // let driveLossNode: SankeyNode = {
-    //   node: 3,
-    //   name: "Drive Loss"
-    // };
-    // let pumpLossNode: SankeyNode = {
-    //   node: 4,
-    //   name: "Pump Loss"
-    // };
-    // let usefulOutputNode: SankeyNode = {
-    //   node: 5,
-    //   name: "Useful Output"
-    // };
     let inputNode: SankeyNode = {
       node: 0,
-      name: "node0"
+      name: "Energy Input"
+    };
+    let exothermicInputNode: SankeyNode = {
+      node: 1,
+      name: "Exothermic Heat"
     };
     let totalInputNode: SankeyNode = {
-      node: 1,
-      name: "node1"
+      node: 2,
+      name: "Total Input"
+    };
+    let usefulOutputNode: SankeyNode = {
+      node: 3,
+      name: "Useful Output"
     };
     let motorLossNode: SankeyNode = {
-      node: 2,
-      name: "node2"
+      node: 4,
+      name: "Motor Loss"
     };
     let driveLossNode: SankeyNode = {
-      node: 3,
-      name: "node3"
+      node: 5,
+      name: "Drive Loss"
     };
     let pumpLossNode: SankeyNode = {
-      node: 4,
-      name: "node4"
+      node: 6,
+      name: "Pump Loss"
     };
-    // let usefulOutputNode: SankeyNode = {
-    //   node: 5,
-    //   name: "node5"
-    // };
+    let totalLossNode: SankeyNode = {
+      node: 7,
+      name: "Total Output"
+    };
+
     nodes.push(inputNode);
+    nodes.push(exothermicInputNode);
     nodes.push(totalInputNode);
+    nodes.push(usefulOutputNode);
     nodes.push(motorLossNode);
     nodes.push(driveLossNode);
     nodes.push(pumpLossNode);
-    // nodes.push(usefulOutputNode);
 
-    // let energyInputLink: SankeyLink = {
-    //   source: "Energy Input",
-    //   target: "Total Input",
-    //   value: 50
-    // };
-    // let totalInputToUsefulOutputLink: SankeyLink = {
-    //   source: "Total Input",
-    //   target: "Useful Output",
-    //   value: 15
-    // };
-    // let totalInputToMotorLossLink: SankeyLink = {
-    //   source: "Total Input",
-    //   target: "Motor Loss",
-    //   value: 5
-    // };
-    // let totalInputToDriveLossLink: SankeyLink = {
-    //   source: "Total Input",
-    //   target: "Drive Loss",
-    //   value: 7
-    // };
-    // let totalInputToPumpLossLink: SankeyLink = {
-    //   source: "Total Input",
-    //   target: "Pump Loss",
-    //   value: 23
-    // };
-    let energyInputLink: SankeyLink = {
+    nodes.push(totalLossNode);
+
+    let energyInputToTotalInputLink: SankeyLink = {
       source: 0,
       target: 2,
-      value: 2
+      value: 88.2
+      // causesCycle: false
+    };
+    let exothermicToTotalInputLink: SankeyLink = {
+      source: 1,
+      target: 2,
+      value: 10
+      // causesCycle: false
     };
     let totalInputToUsefulOutputLink: SankeyLink = {
-      source: 1,
-      target: 2,
-      value: 2
+      source: 2,
+      target: 3,
+      value: 74.6
+      // causesCycle: false
     };
     let totalInputToMotorLossLink: SankeyLink = {
-      source: 1,
-      target: 3,
-      value: 2
+      source: 2,
+      target: 4,
+      value: 5.86
+      // causesCycle: false
     };
     let totalInputToDriveLossLink: SankeyLink = {
-      source: 0,
-      target: 4,
-      value: 2
+      source: 2,
+      target: 5,
+      value: 3.35
+      // causesCycle: false
     };
     let totalInputToPumpLossLink: SankeyLink = {
       source: 2,
-      target: 3,
+      target: 6,
+      value: 14.4
+      // causesCycle: false
+    };
+    let pumpLossToTotalLossLink: SankeyLink = {
+      source: 6,
+      target: 7,
+      value: 4.4
+      // causesCycle: false
+    };
+    let motorLossToTotalLossLink: SankeyLink = {
+      source: 4,
+      target: 7,
+      value: 5.86
+      // causesCycle: false
+    };
+    let driveLossToTotalLossLink: SankeyLink = {
+      source: 5,
+      target: 7,
+      value: 1.35
+      // causesCycle: false
+    };
+    let driveLossLoopToTotalInputLink: SankeyLink = {
+      source: 5,
+      target: 2,
       value: 2
-    };
-    let testLinkA: SankeyLink = {
-      source: 2,
-      target: 4,
-      value: 2
-    };
-    let testLinkB: SankeyLink = {
-      source: 3,
-      target: 4,
-      value: 4
-    };
-    links.push(energyInputLink);
+      // causesCycle: null
+    }
+    let pumpLossLoopToTotalInputLink: SankeyLink = {
+      source: 6,
+      target: 2,
+      value: 10
+    }
+
+    links.push(energyInputToTotalInputLink);
+    links.push(exothermicToTotalInputLink);
     links.push(totalInputToUsefulOutputLink);
     links.push(totalInputToMotorLossLink);
     links.push(totalInputToDriveLossLink);
     links.push(totalInputToPumpLossLink);
-    //test
-    links.push(testLinkA);
-    links.push(testLinkB);
+
+    links.push(pumpLossToTotalLossLink);
+    links.push(motorLossToTotalLossLink);
+    links.push(driveLossToTotalLossLink);
+
+    links.push(driveLossLoopToTotalInputLink);
+    links.push(pumpLossLoopToTotalInputLink);
 
     this.sankeyData = {
       nodes: nodes,
