@@ -863,61 +863,51 @@ export class PsatSankeyComponent implements OnInit {
       source: 0,
       target: 2,
       value: 88.2
-      // causesCycle: false
     };
     let exothermicToTotalInputLink: SankeyLink = {
       source: 1,
       target: 2,
       value: 10
-      // causesCycle: false
     };
     let totalInputToUsefulOutputLink: SankeyLink = {
       source: 2,
       target: 3,
       value: 74.6
-      // causesCycle: false
     };
     let totalInputToMotorLossLink: SankeyLink = {
       source: 2,
       target: 4,
       value: 5.86
-      // causesCycle: false
     };
     let totalInputToDriveLossLink: SankeyLink = {
       source: 2,
       target: 5,
       value: 3.35
-      // causesCycle: false
     };
     let totalInputToPumpLossLink: SankeyLink = {
       source: 2,
       target: 6,
       value: 14.4
-      // causesCycle: false
     };
     let pumpLossToTotalLossLink: SankeyLink = {
       source: 6,
       target: 7,
       value: 4.4
-      // causesCycle: false
     };
     let motorLossToTotalLossLink: SankeyLink = {
       source: 4,
       target: 7,
       value: 5.86
-      // causesCycle: false
     };
     let driveLossToTotalLossLink: SankeyLink = {
       source: 5,
       target: 7,
       value: 1.35
-      // causesCycle: false
     };
     let driveLossLoopToTotalInputLink: SankeyLink = {
       source: 5,
       target: 2,
       value: 2
-      // causesCycle: null
     }
     let pumpLossLoopToTotalInputLink: SankeyLink = {
       source: 6,

@@ -42,12 +42,6 @@ export class SankeyChartService {
 
     d3.sankey = function () {
       var sankey: any = {};
-      // var sankey = {
-
-      //   nodes: null,
-      //   links: null,
-      //   layout: null
-      // },
       var nodeWidth = 24;
       var nodePadding = 8;
       var size = [1, 1];
@@ -149,19 +143,12 @@ export class SankeyChartService {
       };
 
       sankey.layout = function (iterations) {
-        console.log('layout; 0%');
         computeNodeLinks();
-        console.log('16.67%');
         computeNodeValues();
-        console.log('33.33%');
         markCycles();
-        console.log('50%');
         computeNodeBreadths();
-        console.log('66.67%');
         computeNodeDepths(iterations);
-        console.log('83.33%');
         computeLinkDepths();
-        console.log('sankey complete; 100%');
         return sankey;
       };
 
@@ -478,14 +465,9 @@ export class SankeyChartService {
     };
 
     let tmpSankey = d3.sankey()
-      .nodeWidth(36)
-      .nodePadding(40)
+      .nodeWidth(15)
+      .nodePadding(10)
       .size([width, height]);
-    // let tmpPath = d3.sankey().link();
-    console.log('tmpSankey = ');
-    console.log(tmpSankey);
-    // console.log('sankey = ');
-    // console.log(sankey);
     return tmpSankey;
   }
 
@@ -498,24 +480,21 @@ export class SankeyChartService {
   initSvg(ngChart: ElementRef, width: number, height: number, margin: { top: number, right: number, bottom: number, left: number }): d3.Selection<any> {
     return d3.select(ngChart.nativeElement).append('svg')
       .attr('preserveAspectRatio', 'xMinYMid meet')
-      .attr('width', width)
-      .attr('height', height)
-      // .style('margin', margin.top + 'px ' + margin.right + 'px ' + margin.bottom + 'px ' + margin.left + 'px')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
   }
 
-  addViewBox(svg: d3.Selection<any>, sankey: d3.Selection<any>, width: number, height: number) {
-
+  addViewBox(ngChart: ElementRef, svg: d3.Selection<any>, sankey: d3.Selection<any>, width: number, height: number) {
     let cycleTopMarginSize = (sankey.cycleLaneDistFromFwdPaths() - ((sankey.cycleLaneNarrowWidth() + sankey.cycleSmallWidthBuffer()) * sankey.cycleLinksCount()))
     let horizontalMarginSize = (sankey.cycleDistFromNode() + sankey.cycleControlPointDist());
-    console.log('cycleTopMarginSize = ' + cycleTopMarginSize);
-    console.log('horizontalMarginSize = ' + horizontalMarginSize);
-    svg.attr('viewBox',
+    svg = d3.selectAll('svg').attr('viewBox',
       '' + (0 - horizontalMarginSize) + ' '
       + cycleTopMarginSize + ' '
       + (width + horizontalMarginSize * 2) + ' '
       + (height + (-1 * cycleTopMarginSize)) + ' ');
+    return svg;
   }
 
   // initSankeyProperties(width: number, height: number, nodeWidth: number, nodePadding: number): d3.Selection<any> {
@@ -532,32 +511,19 @@ export class SankeyChartService {
   // }
 
   // getLink(svg: d3.Selection<any>, sankeyData: SankeyData, format: any, line: any, path: any): d3.Selection<any> {
-  getLink(svg: d3.Selection<any>, sankeyData: SankeyData, format: any, path: any): d3.Selection<any> {
-
-    console.log('getLink, path = ');
-    console.log(path);
-    // cycle features
-    // cycleLaneNarrowWidth = 4,
-    // cycleLaneDistFromFwdPaths = -10,  // the distance above the paths to start showing 'cycle lanes'
-    // cycleDistFromNode = 30,      // linear path distance before arcing from node
-    //   cycleControlPointDist = 30,  // controls the significance of the cycle's arc
-    // cycleSmallWidthBuffer = 2
-
+  getLink(svg: d3.Selection<any>, sankeyData: SankeyData, format: any, cycleProperties: SankeyCycleProperties): d3.Selection<any> {
     let link = svg.append('g').selectAll('.link')
       .data(sankeyData.links)
       .enter().append('path')
       .attr('d', function (d) {
-        console.log('d = ');
-        console.log(d);
         var curvature = .5;
-        var cycleLaneNarrowWidth = 4;
-        var cycleLaneDistFromFwdPaths = -10;
-        var cycleDistFromNode = 30;
-        var cycleControlPointDist = 30;
-        var cycleSmallWidthBuffer = 2;
+        var cycleLaneNarrowWidth = cycleProperties.cycleLaneNarrowWidth;
+        var cycleLaneDistFromFwdPaths = cycleProperties.cycleLaneDistFromFwdPaths;
+        var cycleDistFromNode = cycleProperties.cycleDistFromNode;
+        var cycleControlPointDist = cycleProperties.cycleControlPointDist;
+        var cycleSmallWidthBuffer = cycleProperties.cycleSmallWidthBuffer;
         if (d.causesCycle) {
           //cycle node, reaches backwards
-
           let smallWidth = cycleLaneNarrowWidth,
             s_x = d.source.x + d.source.dx,
             s_y = d.source.y + d.sy + d.dy,
@@ -571,7 +537,6 @@ export class SankeyChartService {
             nw_y = ne_y,
             sw_x = nw_x,
             sw_y = t_y + d.ty + d.dy;
-
           // start the path on the outer path boundary
           return "M" + s_x + "," + s_y
             + "L" + se_x + "," + se_y
@@ -579,7 +544,7 @@ export class SankeyChartService {
             + "H" + nw_x
             + "C" + (nw_x - cycleControlPointDist) + "," + nw_y + " " + (sw_x - cycleControlPointDist) + "," + sw_y + " " + sw_x + "," + sw_y
             + "H" + t_x
-            //moving to inner path boundary
+            // moving to inner path boundary
             + "V" + (t_y + d.ty)
             + "H" + sw_x
             + "C" + (sw_x - (cycleControlPointDist / 2) + smallWidth) + "," + t_y + " " +
@@ -590,8 +555,6 @@ export class SankeyChartService {
             (se_x + (cycleControlPointDist / 2) - smallWidth) + "," + (se_y - d.dy) + " " +
             se_x + "," + (se_y - d.dy)
             + "L" + s_x + "," + (s_y - d.dy);
-
-
         }
         else {
           // regular forward node
@@ -644,7 +607,6 @@ export class SankeyChartService {
   }
 
   getNode(svg: d3.Selection<any>, sankeyData: SankeyData, nodeWidth: number, width: number, height: number, color: any, format: any): d3.Selection<any> {
-
     let node = svg.append('g').selectAll('.node')
       .data(sankeyData.nodes)
       .enter().append('g')
@@ -652,7 +614,6 @@ export class SankeyChartService {
       .attr('transform', function (d) {
         return 'translate(' + d.x + ',' + d.y + ')';
       });
-
     node.append('rect')
       .attr('height', function (d) { return d.dy; })
       .attr('width', nodeWidth)
@@ -689,10 +650,17 @@ export interface SankeyLink {
   source: any,
   target: any,
   value: number
-  // causesCycle: boolean
 };
 
 export interface SankeyData {
   nodes: Array<SankeyNode>,
   links: Array<SankeyLink>
+};
+
+export interface SankeyCycleProperties {
+  cycleLaneNarrowWidth: number,
+  cycleLaneDistFromFwdPaths: number,
+  cycleDistFromNode: number,
+  cycleControlPointDist: number,
+  cycleSmallWidthBuffer: number
 };
