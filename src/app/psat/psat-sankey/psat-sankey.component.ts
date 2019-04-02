@@ -846,7 +846,7 @@ export class PsatSankeyComponent implements OnInit {
     };
     let totalLossNode: SankeyNode = {
       node: 7,
-      name: "Total Output"
+      name: "Total Loss"
     };
 
     nodes.push(inputNode);
@@ -877,7 +877,7 @@ export class PsatSankeyComponent implements OnInit {
     let totalInputToMotorLossLink: SankeyLink = {
       source: 2,
       target: 4,
-      value: 5.86
+      value: 15.86
     };
     let totalInputToDriveLossLink: SankeyLink = {
       source: 2,
@@ -897,7 +897,7 @@ export class PsatSankeyComponent implements OnInit {
     let motorLossToTotalLossLink: SankeyLink = {
       source: 4,
       target: 7,
-      value: 5.86
+      value: 15.86
     };
     let driveLossToTotalLossLink: SankeyLink = {
       source: 5,
@@ -917,14 +917,17 @@ export class PsatSankeyComponent implements OnInit {
 
     links.push(energyInputToTotalInputLink);
     links.push(exothermicToTotalInputLink);
+
     links.push(totalInputToUsefulOutputLink);
+
     links.push(totalInputToMotorLossLink);
     links.push(totalInputToDriveLossLink);
     links.push(totalInputToPumpLossLink);
 
-    links.push(pumpLossToTotalLossLink);
     links.push(motorLossToTotalLossLink);
     links.push(driveLossToTotalLossLink);
+    links.push(pumpLossToTotalLossLink);
+
 
     links.push(driveLossLoopToTotalInputLink);
     links.push(pumpLossLoopToTotalInputLink);
