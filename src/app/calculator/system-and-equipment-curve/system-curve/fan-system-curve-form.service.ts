@@ -10,13 +10,15 @@ export class FanSystemCurveFormService {
   constructor(private formBuilder: FormBuilder, private convertUnitsService: ConvertUnitsService) { }
 
   getFanSystemCurveDefaults(settings: Settings): FanSystemCurveData {
-    let systemCurveFlowRate: number = 115280;
-    let fanSystemCurvePressure: number = 16.5;
+    let systemCurveFlowRate: number = 129691;
+    let fanSystemCurvePressure: number = 17.46;
     if (settings.fanFlowRate != 'ft3/min') {
-      systemCurveFlowRate = Math.round(this.convertUnitsService.value(systemCurveFlowRate).from('ft3/min').to(settings.fanFlowRate) * 100) / 100;
+      systemCurveFlowRate = this.convertUnitsService.value(systemCurveFlowRate).from('ft3/min').to(settings.fanFlowRate);
+      systemCurveFlowRate = this.convertUnitsService.roundVal(systemCurveFlowRate, 2);
     }
     if (settings.fanPressureMeasurement != 'inH2o') {
-      fanSystemCurvePressure = Math.round(this.convertUnitsService.value(fanSystemCurvePressure).from('inH2o').to(settings.fanPressureMeasurement) * 100) / 100;
+      fanSystemCurvePressure = this.convertUnitsService.value(fanSystemCurvePressure).from('inH2o').to(settings.fanPressureMeasurement);
+      fanSystemCurvePressure = this.convertUnitsService.roundVal(fanSystemCurvePressure, 2);
     }
     let exampleFanSystemCurveData: FanSystemCurveData = {
       compressibilityFactor: .98,

@@ -172,14 +172,34 @@ export class EquipmentCurveService {
 
   getFanByDataExample(settings: Settings): ByDataInputs {
     let dataRows: Array<{ flow: number, yValue: number }> = [
-      { flow: 0, yValue: 22.3 },
-      { flow: 43200, yValue: 21.8 },
-      { flow: 72050, yValue: 20.3 },
-      { flow: 100870, yValue: 18 },
-      { flow: 129700, yValue: 14.8 },
-      { flow: 158500, yValue: 10.2 },
-      { flow: 172900, yValue: 7.3 },
-      { flow: 187300, yValue: 3.7 }
+      {
+        yValue: 22.3,
+        flow: 28800
+      },
+      {
+        yValue: 21.8,
+        flow: 43200
+      },
+      {
+        yValue: 21.2,
+        flow: 57640
+      },
+      {
+        yValue: 20.3,
+        flow: 72050
+      },
+      {
+        yValue: 18,
+        flow: 100871
+      },
+      {
+        yValue: 14.8,
+        flow: 129700
+      },
+      {
+        yValue: 10.2,
+        flow: 158500
+      }
     ];
 
     dataRows.forEach(row => {
