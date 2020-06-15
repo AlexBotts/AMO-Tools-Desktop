@@ -1,0 +1,41 @@
+<nav class="navbar banner">
+    <div class="h2-name">
+        Manage Database
+    </div>
+    <div class="btn-group pull-right">
+        <button class="btn btn-secondary action-btn" type="button" (click)="delete()">Delete</button>
+        <button class="btn btn-secondary action-btn" type="button" (click)="export()">Export</button>
+        <button class="btn btn-secondary action-btn" type="button" (click)="showImportModal()">Import</button>
+    </div>
+</nav>
+
+
+<ul class="tabs subtabs text-center">
+    <li [ngClass]="{'active': selectedTab == 'pumps'}">
+        <a (click)="selectTab('pumps')">Pumps</a>
+    </li>
+    <li [ngClass]="{'active': selectedTab == 'motors'}">
+        <a (click)="selectTab('motors')">Motors</a>
+    </li>
+    <li [ngClass]="{'active': selectedTab == 'flue-gas'}">
+        <a (click)="selectTab('flue-gas')">Gaseous Fuels</a>
+    </li>
+    <li [ngClass]="{'active': selectedTab == 'solid-liquid-fuels'}">
+        <a (click)="selectTab('solid-liquid-fuels')">Solid/Liquid Fuels</a>
+    </li>
+    <li [ngClass]="{'active': selectedTab == 'gas-load-charge-material'}">
+        <a (click)="selectTab('gas-load-charge-material')">Gas Load Charge Materials</a>
+    </li>
+    <li [ngClass]="{'active': selectedTab == 'liquid-load-charge-material'}">
+        <a (click)="selectTab('liquid-load-charge-material')">Liquid Load Charge Materials</a>
+    </li>
+    <li [ngClass]="{'active': selectedTab == 'solid-load-charge-material'}">
+        <a (click)="selectTab('solid-load-charge-material')">Solid Load Charge Materials</a>
+    </li>
+    <li [ngClass]="{'active': selectedTab == 'atmosphere-gas'}">
+        <a (click)="selectTab('atmosphere-gas')">Atmosphere Gases</a>
+    </li>
+    <li [ngClass]="{'active': selectedTab == 'wall-surfaces'}">
+        <a (click)="selectTab('wall-surfaces')">Wall Surfaces</a>
+    </li>
+</ul>

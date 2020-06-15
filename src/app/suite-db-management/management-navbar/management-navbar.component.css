@@ -1,0 +1,18 @@
+.h2-name{
+    font-weight: 400;
+    font-size: 20px;
+}
+
+.navbar.banner{
+    color: white;
+    background-color: gray;
+}
+
+.action-btn{
+    padding: 8px;
+}
+
+.tabs.subtabs {
+    border: gray solid 3px;
+    box-shadow: none;
+}

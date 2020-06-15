@@ -32,6 +32,7 @@ import { TutorialsModule } from '../tutorials/tutorials.module';
 import { DashboardModule } from '../dashboard/dashboard.module';
 import { UpdateToastComponent } from '../update-toast/update-toast.component';
 import { LogToolModule } from '../log-tool/log-tool.module';
+import { SuiteDbManagementModule } from '../suite-db-management/suite-db-management.module';
 
 @NgModule({
   declarations: [
@@ -59,7 +60,8 @@ import { LogToolModule } from '../log-tool/log-tool.module';
     ToastModule,
     TutorialsModule,
     DashboardModule,
-    LogToolModule
+    LogToolModule,
+    SuiteDbManagementModule
   ],
   providers: [
     AssessmentService,

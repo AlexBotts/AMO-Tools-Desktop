@@ -80,6 +80,7 @@ import { SteamReductionComponent } from '../calculator/steam/steam-reduction/ste
 import { AirFlowConversionComponent } from '../calculator/compressed-air/air-flow-conversion/air-flow-conversion.component';
 import { ProcessCoolingListComponent } from '../calculator/process-cooling/process-cooling-list/process-cooling-list.component';
 import { CoolingTowerComponent } from '../calculator/process-cooling/cooling-tower/cooling-tower.component';
+import { SuiteDbManagementComponent } from '../suite-db-management/suite-db-management.component';
 
 export const coreRoutes: Routes = [
   {
@@ -122,6 +123,10 @@ export const coreRoutes: Routes = [
       {
         component: CustomMaterialsComponent,
         path: 'custom-materials'
+      },
+      {
+        component: SuiteDbManagementComponent,
+        path: 'manage-database'
       },
       {
         component: CalculatorComponent,
