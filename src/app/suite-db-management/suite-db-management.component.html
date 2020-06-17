@@ -1,7 +1,9 @@
-<div class="row no-gutters justify-content-center h-100">
+<div class="row no-gutters justify-content-center">
     <div class="col-11 mt-3">
         <app-management-navbar></app-management-navbar>
     </div>
+</div>
+<div class="row no-gutters justify-content-center h-100">
     <div class="col-11">
         <app-atmosphere-gas *ngIf="selectedTab == 'atmosphere-gas'"></app-atmosphere-gas>
         <app-flue-gas *ngIf="selectedTab == 'flue-gas'"></app-flue-gas>

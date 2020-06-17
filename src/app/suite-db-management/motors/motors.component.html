@@ -1,1 +1,68 @@
-<p>motors works!</p>
+<table class="table table-striped">
+    <tbody>
+        <tr>
+            <td>
+                Catalog
+            </td>
+            <td>
+                Efficiency Type
+            </td>
+            <td>
+                HP
+            </td>
+            <td>
+                Hz
+            </td>
+            <td>
+                Motor Type
+            </td>
+            <td>
+                Nema Table
+            </td>
+            <td>
+                Nominal Efficiency
+            </td>
+            <td>
+                Poles
+            </td>
+            <td>
+                Synchronous Speed
+            </td>
+            <td>
+                Voltage Limit
+            </td>
+        </tr>
+        <tr *ngFor="let motor of motors">
+            <td>
+                {{motor.catalog}}
+            </td>
+            <td>
+                {{motor.efficiencyType}}
+            </td>
+            <td>
+                {{motor.hp}}
+            </td>
+            <td>
+                {{motor.hz}}
+            </td>
+            <td>
+                {{motor.motorType}}
+            </td>
+            <td>
+                {{motor.nemaTable}}
+            </td>
+            <td>
+                {{motor.nominalEfficiency}}
+            </td>
+            <td>
+                {{motor.poles}}
+            </td>
+            <td>
+                {{motor.synchronousSpeed}}
+            </td>
+            <td>
+                {{motor.voltageLimit}}
+            </td>
+        </tr>
+    </tbody>
+</table>

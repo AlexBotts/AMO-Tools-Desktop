@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { SuiteDbService } from '../../suiteDb/suite-db.service';
 
 @Component({
   selector: 'app-pumps',
@@ -7,9 +8,11 @@ import { Component, OnInit } from '@angular/core';
 })
 export class PumpsComponent implements OnInit {
 
-  constructor() { }
+  constructor(private suiteDbService: SuiteDbService) { }
 
   ngOnInit(): void {
+    let pumps = this.suiteDbService.selectPumps();
+    console.log(pumps);
   }
 
 }

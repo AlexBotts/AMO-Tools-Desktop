@@ -1,1 +1,26 @@
-<p>atmosphere-gas works!</p>
+<table class="table table-striped">
+    <tbody>
+        <tr>
+            <td>
+                Selected
+            </td>
+            <td>
+                Substance
+            </td>
+            <td>
+                Specific Heat
+            </td>
+        </tr>
+        <tr *ngFor="let dbEntry of allDbEntries">
+            <td>
+
+            </td>
+            <td>
+                {{dbEntry.substance}}
+            </td>
+            <td>
+                {{dbEntry.specificHeat}}
+            </td>
+        </tr>
+    </tbody>
+</table>

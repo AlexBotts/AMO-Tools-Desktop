@@ -9,9 +9,11 @@ declare var db: any;
 export class SuiteDbService {
   db: any = db;
   hasStarted: boolean = false;
-  constructor(private indexedDbService: IndexedDbService) { }
+  constructor(private indexedDbService: IndexedDbService) {
+  }
 
   startup() {
+    console.log(db);
     this.hasStarted = true;
     return db.startup();
   }
@@ -24,6 +26,7 @@ export class SuiteDbService {
   }
 
   test() {
+    console.log('===TEST===')
     console.log(db);
   }
 
@@ -175,8 +178,17 @@ export class SuiteDbService {
     return db.selectWallLossesSurfaceById(id);
   }
 
+  selectMotors() {
+    return db.selectMotors();
+  }
+
+  selectPumps() {
+    return db.selectPumps();
+  }
+
+
   initCustomDbMaterials() {
-    //this.test();
+    this.test();
     this.indexedDbService.getAllGasLoadChargeMaterial().then(results => {
       let customGasLoadChargeMaterials: GasLoadChargeMaterial[] = results;
       customGasLoadChargeMaterials.forEach(material => {
